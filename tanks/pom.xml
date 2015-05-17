@@ -13,7 +13,7 @@
             <groupId>net.sf.robocode</groupId>
             <artifactId>robocode.api</artifactId>
             <version>1.9.2.1</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
     </dependencies>
 
