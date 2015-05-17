@@ -29,7 +29,8 @@ public class NashornRobot extends Robot {
     public void run() {
         try {
 //            while(true) {
-            JSObject result = (JSObject) nashorn.invokeFunction("turn");
+            JSObject result = (JSObject) nashorn.invokeFunction("onMyTurn",
+                    new fbao.Robot(0, 0), new Board(5, 5));
             System.out.println(result.getMember("action"));
 //            }
         } catch (Exception e) {
@@ -40,7 +41,8 @@ public class NashornRobot extends Robot {
     @Override
     public void onScannedRobot(ScannedRobotEvent event) {
         try {
-            JSObject result = (JSObject) nashorn.invokeFunction("onScannedRobot");
+            JSObject result = (JSObject) nashorn.invokeFunction("onScannedRobot",
+                    new fbao.Robot(0, 0), new fbao.Robot(1, 1));
             System.out.println(result.getMember("action"));
         } catch (Exception e) {
             e.printStackTrace();
