@@ -8,7 +8,7 @@ function onMyTurn(me, board) {
     if (rand.nextInt(25) == 0) {
         return {action: "MOVE", x: rand.nextDouble() * board.sizeX, y: rand.nextDouble() * board.sizeY};
     } else {
-        return {action: "TURN_RADAR", degrees: rand.nextDouble() * 20 - 10};
+        return {action: "TURN_RADAR", degrees: rand.nextDouble() * 30};
     }
 }
 
@@ -16,15 +16,6 @@ function onScannedRobot(me, opponent, board) {
     var power = board.sizeX / opponent.distance;
     if (power > 25) {
         power = 25;
-    }
-
-    if (opponent.energy <= 20 && me.energy > 50) {
-        return {action: "FIRE", power: power};
-    }
-
-    if (opponent.bearing == 0) {
-        var rand = new java.util.Random();
-        return {action: "MOVE", x: rand.nextDouble() * board.sizeX, y: rand.nextDouble() * board.sizeY};
     }
 
     return {action: "FIRE", power: power};

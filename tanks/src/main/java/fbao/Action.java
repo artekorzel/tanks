@@ -6,14 +6,14 @@ import robocode.Robot;
 public enum Action {
     FIRE {
         @Override
-        public void doJob(Robot robot, JSObject result) {
-            robot.turnGunRight(robot.getRadarHeading() - robot.getGunHeading());
+        public void doJob(Robot robot, JSObject result, ScannedRobot opponent) {
+            robot.turnGunRight(robot.getHeading() + opponent.bearing - robot.getGunHeading());
             robot.fire(Double.valueOf(result.getMember("power").toString()));
         }
     },
     MOVE {
         @Override
-        public void doJob(Robot robot, JSObject result) {
+        public void doJob(Robot robot, JSObject result, ScannedRobot opponent) {
             double x = robot.getX();
             double y = robot.getY();
             double targetX = Double.valueOf(result.getMember("x").toString());
@@ -32,11 +32,11 @@ public enum Action {
     },
     TURN_RADAR {
         @Override
-        public void doJob(Robot robot, JSObject result) {
+        public void doJob(Robot robot, JSObject result, ScannedRobot opponent) {
             double degrees = Double.valueOf(result.getMember("degrees").toString());
             robot.turnRadarRight(degrees);
         }
     };
 
-    public abstract void doJob(Robot robot, JSObject result);
+    public abstract void doJob(Robot robot, JSObject result, ScannedRobot opponent);
 }

@@ -32,7 +32,7 @@ public class NashornRobot extends robocode.Robot {
                 Board board = getBoard();
                 JSObject result = (JSObject) nashorn.invokeFunction("onMyTurn", me, board);
                 Action action = Action.valueOf(result.getMember("action").toString());
-                action.doJob(this, result);
+                action.doJob(this, result, null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -48,7 +48,7 @@ public class NashornRobot extends robocode.Robot {
 
             JSObject result = (JSObject) nashorn.invokeFunction("onScannedRobot", me, opponent, board);
             Action action = Action.valueOf(result.getMember("action").toString());
-            action.doJob(this, result);
+            action.doJob(this, result, opponent);
         } catch (Exception e) {
             e.printStackTrace();
         }
