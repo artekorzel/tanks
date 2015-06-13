@@ -2,7 +2,6 @@ package fbao;
 
 import jdk.nashorn.api.scripting.JSObject;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
-import robocode.Robot;
 import robocode.ScannedRobotEvent;
 
 import javax.script.ScriptEngineManager;
@@ -11,14 +10,14 @@ import java.io.Reader;
 import java.net.URI;
 import java.nio.file.Paths;
 
-public class NashornRobot extends Robot {
+public class NashornRobot extends robocode.Robot {
 
-    private final NashornScriptEngine nashorn;
+    private NashornScriptEngine nashorn;
 
     public NashornRobot() {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        nashorn = (NashornScriptEngine) manager.getEngineByName("nashorn");
         try {
+            ScriptEngineManager manager = new ScriptEngineManager();
+            nashorn = (NashornScriptEngine) manager.getEngineByName("nashorn");
             nashorn.compile(getScript()).eval();
         } catch (Exception e) {
             e.printStackTrace();
@@ -27,30 +26,67 @@ public class NashornRobot extends Robot {
 
     @Override
     public void run() {
-        try {
-//            while(true) {
-            JSObject result = (JSObject) nashorn.invokeFunction("onMyTurn",
-                    new fbao.Robot(0, 0), new Board(5, 5));
-            System.out.println(result.getMember("action"));
-//            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (true) {
+            try {
+                Robot me = getMyRobot();
+                Board board = getBoard();
+                JSObject result = (JSObject) nashorn.invokeFunction("onMyTurn", me, board);
+                Action action = Action.valueOf(result.getMember("action").toString());
+                action.doJob(this, result);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onScannedRobot(ScannedRobotEvent event) {
         try {
-            JSObject result = (JSObject) nashorn.invokeFunction("onScannedRobot",
-                    new fbao.Robot(0, 0), new fbao.Robot(1, 1));
-            System.out.println(result.getMember("action"));
+            Robot me = getMyRobot();
+            ScannedRobot opponent = getScannedRobot(event);
+            Board board = getBoard();
+
+            JSObject result = (JSObject) nashorn.invokeFunction("onScannedRobot", me, opponent, board);
+            Action action = Action.valueOf(result.getMember("action").toString());
+            action.doJob(this, result);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private Board getBoard() {
+        return Board.BoardBuilder.aBoard()
+                .withNoOfOpponents(getOthers())
+                .withSizeX(getBattleFieldWidth())
+                .withSizeY(getBattleFieldHeight())
+                .build();
+    }
+
+    private Robot getMyRobot() {
+        return Robot.RobotBuilder.aRobot()
+                .withPositionX(getX())
+                .withPositionY(getY())
+                .withSizeX(getWidth())
+                .withSizeY(getHeight())
+                .withEnergy(getEnergy())
+                .withHeading(getHeading())
+                .withRadarHeading(getRadarHeading())
+                .withVelocity(getVelocity())
+                .build();
+    }
+
+    private ScannedRobot getScannedRobot(ScannedRobotEvent event) {
+        return ScannedRobot.ScannedRobotBuilder.aScannedRobot()
+                .withDistance(event.getDistance())
+                .withBearing(event.getBearing())
+                .withEnergy(event.getEnergy())
+                .withHeading(event.getHeading())
+                .withVelocity(event.getVelocity())
+                .build();
+    }
+
     private Reader getScript() throws Exception {
-        URI uri = getClass().getClassLoader().getResource("rules.js").toURI();
+        URI uri = getClass().getClassLoader().getResource("fbao/rules.js").toURI();
         String filePath = Paths.get(uri).toFile().getAbsolutePath();
         return new FileReader(filePath);
     }
